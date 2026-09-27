@@ -380,6 +380,24 @@ static bool try_keybindings(struct nauka_server *server, uint32_t modifiers,
         layout_set(server, (enum nauka_layout_mode)kb->layout);
         break;
       }
+      case NAUKA_ACTION_GROW_FOCUSED: {
+        if (server->focused_toplevel && !server->focused_toplevel->floating) {
+          server->focused_toplevel->width_weight += 0.1;
+          if (server->focused_toplevel->width_weight > 1.2)
+            server->focused_toplevel->width_weight = 1.2;
+          arrange_windows(server);
+        }
+        break;
+      }
+      case NAUKA_ACTION_SHRINK_FOCUSED: {
+        if (server->focused_toplevel && !server->focused_toplevel->floating) {
+          server->focused_toplevel->width_weight -= 0.1;
+          if (server->focused_toplevel->width_weight < 0.3)
+            server->focused_toplevel->width_weight = 0.3;
+          arrange_windows(server);
+        }
+        break;
+      }
       }
 
       handled = true;

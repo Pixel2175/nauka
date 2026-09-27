@@ -111,30 +111,44 @@ static void arrange_scroller(struct nauka_server *server, struct wlr_box area) {
       continue;
     wins[n++] = t;
   }
-
   if (n == 0)
     return;
 
   int focused = get_focus_index(server);
-
-  int ww = area.width * 0.80;
+  int base_w = (int)(area.width * 0.80);
   int wh = area.height;
-  int center = area.x + (area.width - ww) / 2;
 
+  /* per-window widths from weight */
+  int widths[128];
   for (int i = 0; i < n; i++) {
-    int offset = i - focused;
-    int x = center + offset * (ww + gap);
+    widths[i] = (int)(base_w * wins[i]->width_weight);
+  }
 
-    wlr_scene_node_set_position(&wins[i]->scene_tree->node, x, area.y);
-    wlr_xdg_toplevel_set_size(wins[i]->xdg_toplevel, ww, wh);
+  /* center the focused window, lay out neighbors using actual widths */
+  int center = area.x + (area.width - widths[focused]) / 2;
+  int x = center;
+  wlr_scene_node_set_position(&wins[focused]->scene_tree->node, x, area.y);
+  wlr_xdg_toplevel_set_size(wins[focused]->xdg_toplevel, widths[focused], wh);
+
+  int cursor_x = x;
+  for (int i = focused - 1; i >= 0; i--) {
+    cursor_x -= widths[i] + gap;
+    wlr_scene_node_set_position(&wins[i]->scene_tree->node, cursor_x, area.y);
+    wlr_xdg_toplevel_set_size(wins[i]->xdg_toplevel, widths[i], wh);
+  }
+
+  cursor_x = x + widths[focused];
+  for (int i = focused + 1; i < n; i++) {
+    cursor_x += gap;
+    wlr_scene_node_set_position(&wins[i]->scene_tree->node, cursor_x, area.y);
+    wlr_xdg_toplevel_set_size(wins[i]->xdg_toplevel, widths[i], wh);
+    cursor_x += widths[i];
   }
 
   for (int i = 0; i < focused; i++)
     wlr_scene_node_raise_to_top(&wins[i]->scene_tree->node);
-
   for (int i = focused + 1; i < n; i++)
     wlr_scene_node_raise_to_top(&wins[i]->scene_tree->node);
-
   wlr_scene_node_raise_to_top(&wins[focused]->scene_tree->node);
 }
 

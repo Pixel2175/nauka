@@ -25,6 +25,7 @@ struct nauka_toplevel {
   bool floating;
   int corner_radius;
   float opacity;
+  double width_weight;
   struct wlr_scene_blur *blur;
   struct wlr_scene_rect *border;
   struct wlr_box floating_geometry;

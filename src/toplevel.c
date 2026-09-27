@@ -291,6 +291,7 @@ void server_new_xdg_toplevel(struct wl_listener *listener, void *data) {
   toplevel->corner_radius = server->config.border_radius;
   toplevel->border_tree = wlr_scene_tree_create(toplevel->scene_tree);
   wlr_scene_node_raise_to_top(&toplevel->border_tree->node);
+  toplevel->width_weight = 0.80;
 
   /* Listen to the various events it can emit */
   toplevel->map.notify = xdg_toplevel_map;

@@ -42,6 +42,7 @@ static void config_set_defaults(struct nauka_config *config) {
 
   config->xwayland = false;
 
+  config->master_factor = 0.55;
   config->default_layout = NAUKA_LAYOUT_GRID;
 
   strcpy(config->cursor_theme, "Adwaita");
@@ -414,6 +415,13 @@ static void config_parse_line(struct nauka_config *config, char *line,
     return;
   }
 
+  if (strcmp(directive, "master_factor") == 0) {
+    char *value = next_token(&cursor);
+    if (value != NULL)
+      config->master_factor = atof(value);
+    return;
+  }
+
   if (strcmp(directive, "keybind") != 0) {
     return;
   }
@@ -510,6 +518,10 @@ static void config_parse_line(struct nauka_config *config, char *line,
       return; /* unrecognized layout name */
     }
     kb->action = NAUKA_ACTION_SET_LAYOUT;
+  } else if (strcasecmp(action_str, "grow_focused") == 0) {
+    kb->action = NAUKA_ACTION_GROW_FOCUSED;
+  } else if (strcasecmp(action_str, "shrink_focused") == 0) {
+    kb->action = NAUKA_ACTION_SHRINK_FOCUSED;
   } else {
     free(kb);
     return;
