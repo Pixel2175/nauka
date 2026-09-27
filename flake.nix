@@ -1,52 +1,52 @@
-{
-  description = "nauka - A small and minimal Wayland compositor";
+   {
+     description = "nauka - A small and minimal Wayland compositor";
 
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-  };
+     inputs = {
+       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+     };
 
-  outputs = { self, nixpkgs }: let
-    supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
-    forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-  in {
-    packages = forAllSystems (system: let
-      pkgs = nixpkgs.legacyPackages.${system};
-    in {
-      default = pkgs.stdenv.mkDerivation {
-        pname = "nauka";
-        version = "main";
+     outputs = { self, nixpkgs }: let
+       supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
+       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+     in {
+       packages = forAllSystems (system: let
+         pkgs = nixpkgs.legacyPackages.${system};
+       in {
+         default = pkgs.stdenv.mkDerivation {
+           pname = "nauka";
+           version = "0.1.0";
 
-        src = builtins.fetchGit {
-          url = "https://github.com/shadowash8/nauka.git";
-          ref = "refs/heads/main";
-        };
+           # Build the checkout the flake lives in, not a remote copy.
+           src = self;
 
-        nativeBuildInputs = with pkgs; [
-          meson
-          ninja
-          pkg-config
-          wayland-scanner
-          makeBinaryWrapper
-        ];
+           nativeBuildInputs = with pkgs; [
+             meson
+             ninja
+             pkg-config
+             wayland-scanner
+             makeBinaryWrapper
+           ];
 
-        buildInputs = with pkgs; [
-          wayland
-          wayland-protocols
-          wlroots_0_20
-          libinput
-          libdrm
-          pixman
-          libGL
-          libxkbcommon
-          seatd
-          scenefx
-        ];
-    
-        postInstall = ''
-          wrapProgram $out/bin/nauka \
-            --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.xwayland pkgs.xwayland-satellite ]}
-        '';
-      };
-    });
-  };
-}
+           buildInputs = with pkgs; [
+             wayland
+             wayland-protocols
+             wlroots_0_20
+             libinput
+             libdrm
+             pixman
+             libGL
+             libxkbcommon
+             seatd
+             scenefx_0_5  
+           ];
+
+           postInstall = ''
+             wrapProgram $out/bin/nauka \
+               --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.xwayland pkgs.xwayland-satellite ]}
+           '';
+
+           passthru.providedSessions = [ "nauka" ];
+         };
+       });
+     };
+   }
