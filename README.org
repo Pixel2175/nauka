@@ -55,3 +55,24 @@ for an example configuration, see =default.conf= in the repository.
 
 the configuration file supports hot reloading, so changes can be
 applied without restarting nauka.
+
+* nix flake
+add nauka input to flake file
+#+begin_src nix
+  nauka = {
+     url = "git+https://github.com/shadowash8/nauka";
+     inputs.nixpkgs.follows = "nixpkgs";
+   };
+#+end_src
+
+then add the package to system packages
+#+begin_src nix
+   inputs.nauka.packages.${pkgs.stdenv.hostPlatform.system}.default
+#+end_src
+
+optionally you can add nauka as a display manager session package
+#+begin_src nix
+   services.displayManager.sessionPackages = [
+     inputs.nauka.packages.${pkgs.stdenv.hostPlatform.system}.default
+   ];
+#+end_src
