@@ -1,3 +1,4 @@
+#include "animation.h"
 #include "nauka.h"
 #include <assert.h>
 #include <stdlib.h>
@@ -38,9 +39,8 @@ static void xdg_toplevel_map(struct wl_listener *listener, void *data) {
         .height = height,
     };
 
-    wlr_scene_node_set_position(&toplevel->scene_tree->node,
-                                toplevel->floating_geometry.x,
-                                toplevel->floating_geometry.y);
+    animation_start(toplevel, toplevel->floating_geometry.x,
+                              toplevel->floating_geometry.y);
 
     /* actually request this size from the client — without this, only
      * the scene node moves, and the surface keeps whatever size it
@@ -437,9 +437,8 @@ void toplevel_toggle_floating(struct nauka_toplevel *toplevel) {
         .height = height,
     };
 
-    wlr_scene_node_set_position(&toplevel->scene_tree->node,
-                                toplevel->floating_geometry.x,
-                                toplevel->floating_geometry.y);
+    animation_start(toplevel, toplevel->floating_geometry.x,
+                              toplevel->floating_geometry.y);
     wlr_xdg_toplevel_set_size(toplevel->xdg_toplevel, width, height);
   } else {
     wlr_scene_node_reparent(&toplevel->scene_tree->node, server->toplevel_tree);
@@ -480,9 +479,8 @@ void toplevel_toggle_sticky(struct nauka_toplevel *toplevel) {
           .height = height,
       };
 
-      wlr_scene_node_set_position(&toplevel->scene_tree->node,
-                                  toplevel->floating_geometry.x,
-                                  toplevel->floating_geometry.y);
+      animation_start(toplevel, toplevel->floating_geometry.x,
+                                toplevel->floating_geometry.y);
       wlr_xdg_toplevel_set_size(toplevel->xdg_toplevel, width, height);
     }
   } else {
@@ -527,9 +525,8 @@ static void toplevel_save_floating_geometry(struct nauka_toplevel *toplevel) {
 
 static void
 toplevel_restore_floating_geometry(struct nauka_toplevel *toplevel) {
-  wlr_scene_node_set_position(&toplevel->scene_tree->node,
-                              toplevel->floating_geometry.x,
-                              toplevel->floating_geometry.y);
+  animation_start(toplevel, toplevel->floating_geometry.x,
+                            toplevel->floating_geometry.y);
   wlr_xdg_toplevel_set_size(toplevel->xdg_toplevel,
                             toplevel->floating_geometry.width,
                             toplevel->floating_geometry.height);
